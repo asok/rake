@@ -18,11 +18,22 @@
 (defvar rake-test-app-path
   (f-canonical (concat (make-temp-file "rake-test" t) "/")))
 
+(defvar rake-test-spring-pid-file
+  (concat
+   temporary-file-directory
+   "spring/"
+   (md5 rake-test-app-path 0 -1)
+   ".pid"))
+
+(defvar rake-test-zeus-pid-file
+  (concat rake-test-app-path ".zeus.sock"))
+
 (defun rake-test-touch-file (filepath)
   (let ((fullpath (expand-file-name filepath rake-test-app-path)))
     (f-touch fullpath)))
 
 (Setup
+ (setq kill-buffer-query-functions nil)
  (make-temp-file rake-test-app-path t)
  (rake-test-touch-file "Rakefile")
  (cd rake-test-app-path)
@@ -33,7 +44,7 @@
  )
 
 (After
- ;; After each scenario is run
+ (kill-buffer "*rake-compilation*")
  )
 
 (Teardown

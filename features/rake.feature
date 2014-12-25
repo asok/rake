@@ -3,13 +3,27 @@ Feature: Do Some things
   As a user
   I want to interact with rake tool
 
-  Scenario: Run rake
+  Background:
     Given I have Rakefile with content:
     """
     task :foo do
       puts 'foo'
     end
     """
+
+  Scenario: Run rake
     When I run command "rake-compile" selecting "foo"
     And I switch to buffer "*rake-compilation*"
     Then I should see "rake foo"
+
+  Scenario: Run rake with bundler
+    And I have Gemfile
+    When I run command "rake-compile" selecting "foo"
+    And I switch to buffer "*rake-compilation*"
+    Then I should see "bundle exec rake foo"
+
+  Scenario: Run rake with zeus
+    And zeus is running
+    When I run command "rake-compile" selecting "foo"
+    And I switch to buffer "*rake-compilation*"
+    Then I should see "zeus rake foo"

@@ -32,13 +32,45 @@
 ;;; Code:
 
 (defmacro rake--with-root (body-form)
-  `(let* ((default-directory (locate-dominating-file default-directory "Rakefile")))
+  `(let* ((default-directory (rake--root)))
      (if default-directory
          ,body-form
        (user-error "Rakefile not found."))))
 
-(defun rake-tasks ()
-  (shell-command-to-string "rake -T -A"))
+(defmacro rake--choose-command-prefix (&rest cases)
+  `(cond ((rake--spring-p)
+          ,(plist-get cases :spring))
+         ((rake--zeus-p)
+          ,(plist-get cases :zeus))
+         ((rake--bundler-p)
+          ,(plist-get cases :bundler))
+         (t
+          ,(plist-get cases :vanilla))))
+
+(defun rake--spring-p ()
+  (file-exists-p (f-canonical
+                  (concat
+                   temporary-file-directory
+                   "spring/"
+                   (md5 (rake--root) 0 -1)
+                   ".pid"))))
+
+(defun rake--zeus-p ()
+  (file-exists-p (expand-file-name ".zeus.sock" (rake--root))))
+
+(defun rake--bundler-p ()
+  (file-exists-p (expand-file-name "Gemfile" (rake--root))))
+
+(defun rake--root ()
+  (locate-dominating-file default-directory "Rakefile"))
+
+(defun rake--tasks ()
+  (shell-command-to-string
+   (rake--choose-command-prefix
+    :zeus "zeus rake -T -A"
+    :spring "spring rake -T -A"
+    :bundler "bundle exec rake -T -A"
+    :vanilla "rake -T -A")))
 
 ;; Shamelessly stolen from ruby-starter-kit.el:
 ;; https://github.com/technomancy/emacs-starter-kit/blob/v2/modules/starter-kit-ruby.el
@@ -46,7 +78,7 @@
   "Return a list of all the rake tasks defined in the current projects."
   (--keep it
           (--map (if (string-match "rake \\([^ ]+\\)" it) (match-string 1 it))
-                 (split-string (rake-tasks) "[\n]"))))
+                 (split-string (rake--tasks) "[\n]"))))
 
 (define-derived-mode rake-compilation-mode compilation-mode "Rake Compilation"
   "Compilation mode used by `rake-compile'.")
@@ -59,8 +91,13 @@
                  (rake--pcmpl-tasks))))
   (rake--with-root
    (compile
-    (concat "rake "
-            (if (= 0 (length task)) "default" task))
+    (concat
+     (rake--choose-command-prefix
+      :spring "spring rake "
+      :zeus "zeus rake "
+      :bundler "bundle exec rake "
+      :vanilla "rake ")
+     (if (= 0 (length task)) "default" task))
     'rake-compilation-mode)))
 
 (provide 'rake)

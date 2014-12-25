@@ -1,6 +1,7 @@
 ## Rake.el
 
 **Rake.el** is a package for running rake tasks in Emacs.
+It tries to be smart and uses zeus, spring or bundler to run the command.
 
 ## Installation
 

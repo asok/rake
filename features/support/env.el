@@ -34,6 +34,7 @@
 
 (Setup
  (setq kill-buffer-query-functions nil
+       rake-cache-file (concat rake-test-app-path "rake.cache")
        rake-enable-caching nil)
  (make-temp-file rake-test-app-path t)
  (rake-test-touch-file "Rakefile")

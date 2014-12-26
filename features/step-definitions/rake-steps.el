@@ -54,7 +54,8 @@
 
 (And "^the task \"\\(.+\\)\" is not in the cache$"
   (lambda (name)
-    (let ((tasks (gethash rake-test-app-path (rake--unserialize-cache))))
+    (let* ((content (rake--unserialize-cache))
+           (tasks (and content (gethash rake-test-app-path content))))
       (should (not (equal (list name) tasks))))))
 
 (Given "^I enable the cache$"

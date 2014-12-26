@@ -33,8 +33,8 @@
 
 (require 'cl-lib)
 
-(defmacro rake--with-root (body-form)
-  `(let* ((default-directory (rake--root)))
+(defmacro rake--with-root (root body-form)
+  `(let* ((default-directory root))
      (if default-directory
          ,body-form
        (user-error "Rakefile not found."))))
@@ -121,33 +121,40 @@ to `rake-cache-file'. Returns a list of the tasks for the project."
     (rake--serialize-cache)
     tasks))
 
-(defun rake--cached-or-fresh-tasks ()
+(defun rake--cached-or-fresh-tasks (root)
   "Return a list of all the rake tasks defined in the current project.
 First try to find them in the cache, if not found fallback to calling rake."
-  (let ((root (rake--root)))
-    (if rake-enable-caching
-        (or (gethash root rake--cache) (rake--regenerate-cache root))
-      (rake--tasks))))
+  (if rake-enable-caching
+      (or (gethash root rake--cache) (rake--regenerate-cache root))
+    (rake--tasks)))
+
+(defun rake--clear-cache (root)
+  (remhash root rake--cache))
+
+(defun rake--handle-prefix-arg (arg root)
+  (cl-case (car arg)
+    (16 (rake--clear-cache root))))
 
 (define-derived-mode rake-compilation-mode compilation-mode "Rake Compilation"
   "Compilation mode used by `rake' command.")
 
 ;;;###autoload
-(defun rake (task)
-  (interactive (list
-                (completing-read
-                 "Rake (default: default): "
-                 (rake--cached-or-fresh-tasks))))
-  (rake--with-root
-   (compile
-    (concat
-     (rake--choose-command-prefix
-      :spring "spring rake "
-      :zeus "zeus rake "
-      :bundler "bundle exec rake "
-      :vanilla "rake ")
-     (if (= 0 (length task)) "default" task))
-    'rake-compilation-mode)))
+(defun rake (arg)
+  (interactive "P")
+  (let ((root (rake--root)))
+    (rake--handle-prefix-arg arg root)
+    (rake--with-root
+     root
+     (compile
+      (concat
+       (rake--choose-command-prefix
+        :spring "spring rake "
+        :zeus "zeus rake "
+        :bundler "bundle exec rake "
+        :vanilla "rake ")
+       (completing-read "Rake: "
+                        (rake--cached-or-fresh-tasks root)))
+      'rake-compilation-mode))))
 
 (provide 'rake)
 

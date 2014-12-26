@@ -1,4 +1,4 @@
-## Rake
+## Rake [![Build Status](https://travis-ci.org/asok/rake.png?branch=master)](https://travis-ci.org/asok/rake)
 
 **Rake** is a package for running rake tasks in Emacs.
 

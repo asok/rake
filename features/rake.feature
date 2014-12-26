@@ -11,10 +11,18 @@ Feature: Do Some things
     end
     """
 
-  Scenario: Run rake
+  Scenario: Run rake without cache
     When I run command "rake" selecting "foo"
     And I switch to buffer "*rake-compilation*"
     Then I should see "rake foo"
+    And the task "foo" is not in the cache
+
+  Scenario: Run rake with cache
+    Given I enable the cache
+    When I run command "rake" selecting "foo"
+    And I switch to buffer "*rake-compilation*"
+    Then I should see "rake foo"
+    And the task "foo" is in the cache
 
   Scenario: Run rake with bundler
     And I have Gemfile
@@ -27,3 +35,9 @@ Feature: Do Some things
     When I run command "rake" selecting "foo"
     And I switch to buffer "*rake-compilation*"
     Then I should see "zeus rake foo"
+
+  Scenario: Run rake with spring
+    And spring is running
+    When I run command "rake" selecting "foo"
+    And I switch to buffer "*rake-compilation*"
+    Then I should see "spring rake foo"

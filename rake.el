@@ -31,6 +31,8 @@
 ;;
 ;;; Code:
 
+(require 'cl-lib)
+
 (defmacro rake--with-root (body-form)
   `(let* ((default-directory (rake--root)))
      (if default-directory
@@ -46,6 +48,17 @@
           ,(plist-get cases :bundler))
          (t
           ,(plist-get cases :vanilla))))
+
+(defcustom rake-enable-caching t
+  "When t enables tasks caching."
+  :group 'rake
+  :type 'boolean)
+
+(defcustom rake-cache-file
+  (expand-file-name "rake.cache" user-emacs-directory)
+  "The name of rake's cache file."
+  :group 'rake
+  :type 'string)
 
 (defun rake--spring-p ()
   (file-exists-p (f-canonical
@@ -64,7 +77,25 @@
 (defun rake--root ()
   (locate-dominating-file default-directory "Rakefile"))
 
-(defun rake--tasks ()
+(defun rake--unserialize-cache ()
+  "Read data serialized by `rake--serialize-cache' from `rake-cache-file'."
+  (when (file-exists-p rake-cache-file)
+    (with-temp-buffer
+      (insert-file-contents rake-cache-file)
+      (read (buffer-string)))))
+
+(defvar rake--cache
+  (or (rake--unserialize-cache)
+      (make-hash-table :test 'equal)))
+
+(defun rake--serialize-cache ()
+  "Serialize `rake--cache' to `rake-cache-file'.
+The saved data can be restored with `rake--unserialize-cache'."
+  (when (file-writable-p rake-cache-file)
+    (with-temp-file rake-cache-file
+      (insert (let (print-length) (prin1-to-string rake--cache))))))
+
+(defun rake--tasks-output ()
   (shell-command-to-string
    (rake--choose-command-prefix
     :zeus "zeus rake -T -A"
@@ -72,13 +103,30 @@
     :bundler "bundle exec rake -T -A"
     :vanilla "rake -T -A")))
 
-;; Shamelessly stolen from ruby-starter-kit.el:
-;; https://github.com/technomancy/emacs-starter-kit/blob/v2/modules/starter-kit-ruby.el
-(defun rake--pcmpl-tasks ()
-  "Return a list of all the rake tasks defined in the current projects."
+(defun rake--parse-tasks (output)
+  "Parses the OUTPUT of rake command with list of tasks. Returns a list of tasks."
   (--keep it
           (--map (if (string-match "rake \\([^ ]+\\)" it) (match-string 1 it))
-                 (split-string (rake--tasks) "[\n]"))))
+                 (split-string output "[\n]"))))
+
+(defun rake--tasks ()
+  "Returns list of the rake tasks for the project in PROJECT-ROOT"
+  (rake--parse-tasks (rake--tasks-output)))
+
+(defun rake--regenerate-cache (root)
+  "Regenerates cache for the tasks for the project in ROOT dir and saves it
+to `rake-cache-file'. Returns a list of the tasks for the project."
+  (let ((tasks (rake--tasks)))
+    (puthash root tasks rake--cache)
+    (rake--serialize-cache)
+    tasks))
+
+(defun rake--cached-or-fresh-tasks ()
+  "Return a list of all the rake tasks defined in the current project."
+  (let ((root (rake--root)))
+    (if rake-enable-caching
+        (or (gethash root rake--cache) (rake--regenerate-cache root))
+      (rake--tasks))))
 
 (define-derived-mode rake-compilation-mode compilation-mode "Rake Compilation"
   "Compilation mode used by `rake-compile'.")
@@ -88,7 +136,7 @@
   (interactive (list
                 (completing-read
                  "Rake (default: default): "
-                 (rake--pcmpl-tasks))))
+                 (rake--cached-or-fresh-tasks))))
   (rake--with-root
    (compile
     (concat

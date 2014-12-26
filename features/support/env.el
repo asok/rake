@@ -33,10 +33,12 @@
     (f-touch fullpath)))
 
 (Setup
- (setq kill-buffer-query-functions nil)
+ (setq kill-buffer-query-functions nil
+       rake-enable-caching nil)
  (make-temp-file rake-test-app-path t)
  (rake-test-touch-file "Rakefile")
  (cd rake-test-app-path)
+
  )
 
 (Before
@@ -45,6 +47,7 @@
 
 (After
  (kill-buffer "*rake-compilation*")
+ (remhash (rake--root) rake--cache)
  )
 
 (Teardown

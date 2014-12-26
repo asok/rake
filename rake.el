@@ -84,7 +84,7 @@
   "Compilation mode used by `rake-compile'.")
 
 ;;;###autoload
-(defun rake-compile (task)
+(defun rake (task)
   (interactive (list
                 (completing-read
                  "Rake (default: default): "

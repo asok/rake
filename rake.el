@@ -44,12 +44,12 @@
          ,body-form
        (user-error "Rakefile not found."))))
 
-(defmacro rake--choose-command-prefix (&rest cases)
-  `(cond ((rake--spring-p)
+(defmacro rake--choose-command-prefix (root &rest cases)
+  `(cond ((rake--spring-p root)
           ,(plist-get cases :spring))
-         ((rake--zeus-p)
+         ((rake--zeus-p root)
           ,(plist-get cases :zeus))
-         ((rake--bundler-p)
+         ((rake--bundler-p root)
           ,(plist-get cases :bundler))
          (t
           ,(plist-get cases :vanilla))))
@@ -71,19 +71,19 @@
   :type 'symbol
   :options '(ido grizzl helm default))
 
-(defun rake--spring-p ()
+(defun rake--spring-p (root)
   (file-exists-p (f-canonical
                   (concat
                    temporary-file-directory
                    "spring/"
-                   (md5 (rake--root) 0 -1)
+                   (md5 root 0 -1)
                    ".pid"))))
 
-(defun rake--zeus-p ()
-  (file-exists-p (expand-file-name ".zeus.sock" (rake--root))))
+(defun rake--zeus-p (root)
+  (file-exists-p (expand-file-name ".zeus.sock" root)))
 
-(defun rake--bundler-p ()
-  (file-exists-p (expand-file-name "Gemfile" (rake--root))))
+(defun rake--bundler-p (root)
+  (file-exists-p (expand-file-name "Gemfile" root)))
 
 (defun rake--root ()
   (locate-dominating-file default-directory "Rakefile"))
@@ -106,13 +106,13 @@ The saved data can be restored with `rake--unserialize-cache'."
     (with-temp-file rake-cache-file
       (insert (let (print-length) (prin1-to-string rake--cache))))))
 
-(defun rake--tasks-output ()
+(defun rake--tasks-output (root)
   (shell-command-to-string
-   (rake--choose-command-prefix
-    :zeus "zeus rake -T -A"
-    :spring "spring rake -T -A"
-    :bundler "bundle exec rake -T -A"
-    :vanilla "rake -T -A")))
+   (rake--choose-command-prefix root
+                                :zeus "zeus rake -T -A"
+                                :spring "spring rake -T -A"
+                                :bundler "bundle exec rake -T -A"
+                                :vanilla "rake -T -A")))
 
 (defun rake--parse-tasks (output)
   "Parses the OUTPUT of rake command with list of tasks. Returns a list of tasks."
@@ -120,9 +120,9 @@ The saved data can be restored with `rake--unserialize-cache'."
           (--map (if (string-match "rake \\([^ ]+\\)" it) (match-string 1 it))
                  (split-string output "[\n]"))))
 
-(defun rake--fresh-tasks ()
+(defun rake--fresh-tasks (root)
   "Returns list of the rake tasks for the current project."
-  (rake--parse-tasks (rake--tasks-output)))
+  (rake--parse-tasks (rake--tasks-output root)))
 
 (defun rake--cached-tasks (arg root)
   "Returns cached list of the tasks for project in ROOT.
@@ -135,7 +135,7 @@ If ARG is not 16 and the tasks are not found for the project it will regenerate 
 (defun rake--regenerate-cache (root)
   "Regenerates cache for the tasks for the project in ROOT dir and saves it
 to `rake-cache-file'. Returns a list of the tasks for the project."
-  (let ((tasks (rake--fresh-tasks)))
+  (let ((tasks (rake--fresh-tasks root)))
     (puthash root tasks rake--cache)
     (rake--serialize-cache)
     tasks))
@@ -145,7 +145,7 @@ to `rake-cache-file'. Returns a list of the tasks for the project."
 If `rake-enable-caching' is t look in the cache, if not fallback to calling rake."
   (if rake-enable-caching
       (rake--cached-tasks arg root)
-    (rake--fresh-tasks)))
+    (rake--fresh-tasks root)))
 
 (defun rake--completing-read (prompt choices)
   (cl-case rake-completion-system
@@ -176,11 +176,11 @@ If `rake-enable-caching' is t look in the cache, if not fallback to calling rake
   (interactive "P")
   (let* ((root (rake--root))
          (arg (or (car arg) 0))
-         (prefix (rake--choose-command-prefix
-                  :spring  "spring rake "
-                  :zeus    "zeus rake "
-                  :bundler "bundle exec rake "
-                  :vanilla "rake "))
+         (prefix (rake--choose-command-prefix root
+                                              :spring  "spring rake "
+                                              :zeus    "zeus rake "
+                                              :bundler "bundle exec rake "
+                                              :vanilla "rake "))
          (prompt "Rake: ")
          (task (rake--completing-read prompt
                                       (rake--cached-or-fresh-tasks arg root)))

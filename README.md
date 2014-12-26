@@ -23,6 +23,17 @@ By default the caching is enabled. To disable it:
 (setq rake-enable-caching nil)
 ```
 
+#### Setting up keybinding
+
+By default `rake` command is not bind to any key.
+You might want to do something like this:
+
+```el
+(define-key ruby-mode-map (kbd "C-!") 'rake)
+```
+
+Replace `(kbd "C-!")` with a key of your liking.
+
 ## Contribution
 
 Install [cask](https://github.com/rejeep/cask.el) if you haven't

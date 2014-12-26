@@ -1,4 +1,4 @@
-## Rake.el
+## Rake
 
 **Rake.el** is a package for running rake tasks in Emacs.
 
@@ -55,7 +55,7 @@ Install [cask](https://github.com/rejeep/cask.el) if you haven't
 already, then:
 
 ```bash
-$ cd /path/to/rake.el
+$ cd /path/to/rake
 $ cask
 ```
 

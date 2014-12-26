@@ -40,9 +40,7 @@
 
 (defmacro rake--with-root (root body-form)
   `(let* ((default-directory root))
-     (if default-directory
-         ,body-form
-       (user-error "Rakefile not found."))))
+     ,body-form))
 
 (defmacro rake--choose-command-prefix (root &rest cases)
   `(cond ((rake--spring-p root)
@@ -196,7 +194,7 @@ If `rake-enable-caching' is t look in the cache, if not fallback to calling rake
 (defun rake (arg)
   "Runs rake command."
   (interactive "P")
-  (let* ((root (rake--root))
+  (let* ((root (or (rake--root) (user-error "Rakefile not found")))
          (arg (or (car arg) 0))
          (prefix (rake--choose-command-prefix root
                                               :spring  "spring rake "

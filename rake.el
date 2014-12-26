@@ -140,7 +140,14 @@ If `rake-enable-caching' is t look in the cache, if not fallback to calling rake
   "Compilation mode used by `rake' command.")
 
 ;;;###autoload
+(defun rake-regenerate-cache ()
+  "Regenerates the rake's cache for the current project."
+  (interactive)
+  (rake--regenerate-cache (rake--root)))
+
+;;;###autoload
 (defun rake (arg)
+  "Runs rake command."
   (interactive "P")
   (let* ((root (rake--root))
          (arg (or (car arg) 0))

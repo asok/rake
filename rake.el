@@ -1,4 +1,4 @@
-;;; rake.el --- Command to run rake - make for ruby
+;;; rake.el --- Package to run rake command
 
 ;; Copyright (C) 2014 Adam Sokolnicki
 
@@ -28,6 +28,10 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Commentary:
+;;
+;; Package to interact with rake command - make for Ruby.
+;; It uses completion to choose a rake task to run.
+;; It can use one of the ruby preloaders and caching to speed up the execution of rake.
 ;;
 ;;; Code:
 

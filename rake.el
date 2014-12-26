@@ -36,6 +36,7 @@
 ;;; Code:
 
 (require 'cl-lib)
+(require 'dash)
 
 (defmacro rake--with-root (root body-form)
   `(let* ((default-directory root))

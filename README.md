@@ -1,9 +1,12 @@
 ## Rake
 
-**Rake.el** is a package for running rake tasks in Emacs.
+**Rake** is a package for running rake tasks in Emacs.
 
 * runs rake command using zeus, spring or bundler
 * caches the tasks
+* displays the docstrings of the tasks
+
+![Screenshot](https://github.com/asok/rake/raw/master/screenshots/rake.png)
 
 ## Installation
 

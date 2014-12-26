@@ -59,6 +59,11 @@ to the value of `projectile-completion-system` like this:
   '(setq rake-completion-system projectile-completion-system))
 ```
 
+
+## Alternatives
+
+* [rake.el](https://github.com/vderyagin/rake.el)
+
 ## Contribution
 
 Install [cask](https://github.com/rejeep/cask.el) if you haven't

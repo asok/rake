@@ -20,7 +20,7 @@ You can do `C-u C-u M-x rake` in order to bypass the cache (when enabled).
 
 ### Setting up keybinding
 
-By default `rake` command is not bind to any key.
+By default `rake` command is not bound to any key.
 You might want to do something like this:
 
 ```el

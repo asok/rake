@@ -51,6 +51,14 @@ You can set it to `ido`, `helm`, `grizzl` or `default` for the Emacs' default co
 Also, you can set it to the symbol of a custom command that accepts "prompt" as the first argument
 and "choices" as the second argument.
 
+Also if you are a user of [Projectile](http://batsov.com/projectile/) you might want to just set it
+to the value of `projectile-completion-system` like this:
+
+```el
+(eval-after-load 'projectile
+  '(setq rake-completion-system projectile-completion-system))
+```
+
 ## Contribution
 
 Install [cask](https://github.com/rejeep/cask.el) if you haven't

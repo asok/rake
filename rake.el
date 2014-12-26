@@ -65,6 +65,12 @@
   :group 'rake
   :type 'string)
 
+(defcustom rake-completion-system 'ido
+  "The completion system to be used by rake."
+  :group 'rake
+  :type 'symbol
+  :options '(ido grizzl helm default))
+
 (defun rake--spring-p ()
   (file-exists-p (f-canonical
                   (concat
@@ -141,6 +147,20 @@ If `rake-enable-caching' is t look in the cache, if not fallback to calling rake
       (rake--cached-tasks arg root)
     (rake--fresh-tasks)))
 
+(defun rake--completing-read (prompt choices)
+  (cl-case rake-completion-system
+    ('ido     (ido-completing-read prompt choices))
+    ('default (completing-read     prompt choices))
+    ('helm (if (fboundp 'helm-comp-read)
+               (helm-comp-read prompt choices
+                               :candidates-in-buffer t
+                               :must-match 'confirm)
+             (user-error "Please install helm first")))
+    ('grizzl (if (and (fboundp 'grizzl-completing-read) (fboundp 'grizzl-make-index))
+                 (grizzl-completing-read prompt (grizzl-make-index choices))
+               (user-error "Please install grizzl first")))
+    (t (funcall rake-completion-system prompt choices))))
+
 (define-derived-mode rake-compilation-mode compilation-mode "Rake Compilation"
   "Compilation mode used by `rake' command.")
 
@@ -161,10 +181,11 @@ If `rake-enable-caching' is t look in the cache, if not fallback to calling rake
                   :zeus    "zeus rake "
                   :bundler "bundle exec rake "
                   :vanilla "rake "))
-         (task (completing-read "Rake: "
-                                (rake--cached-or-fresh-tasks arg root)))
+         (prompt "Rake: ")
+         (task (rake--completing-read prompt
+                                      (rake--cached-or-fresh-tasks arg root)))
          (command (if (= arg 4)
-                      (read-string "Rake: " (concat prefix task " "))
+                      (read-string prompt (concat prefix task " "))
                     (concat prefix task))))
     (rake--with-root
      root

@@ -17,11 +17,26 @@ You can do `C-u C-u M-x rake` in order to bypass the cache (when enabled).
 
 ### Customization
 
+#### Caching
+
 By default the caching is enabled. To disable it:
 
 ```el
 (setq rake-enable-caching nil)
 ```
+
+#### Completion
+
+By default `ido` is used for completion you customize it:
+
+```el
+(setq rake-completion-system 'helm)
+```
+
+You can set it to `ido`, `helm`, `grizzl` or `default` for the Emacs' default completion.
+Also, you can set it to the symbol of a custom command that accepts "prompt" as the first argument
+and "choices" as the second argument.
+
 
 #### Setting up keybinding
 

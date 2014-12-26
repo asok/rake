@@ -1,21 +1,42 @@
+(defmacro rake-test-running-command-step (cmd arg &optional extra-step)
+  `(progn
+     (When "I start an action chain")
+     (When "I press \"M-x\"")
+     (And (concat "I type \"" ,cmd "\""))
+     (When "I press \"RET\"")
+     (And (concat "I type \"" ,arg "\""))
+     (And "I execute the action chain")))
+
 (Given "^I have Rakefile with content:$"
-       (lambda (content)
-         (find-file (concat rake-test-app-path "/Rakefile"))
-         (When "I clear the buffer")
-         (When "I insert:" content)
-         (save-buffer)))
+  (lambda (content)
+    (find-file (concat rake-test-app-path "/Rakefile"))
+    (When "I clear the buffer")
+    (When "I insert:" content)
+    (save-buffer)))
 
 (Given "^I have Gemfile$"
-       (lambda ()
-         (f-touch (concat rake-test-app-path "/Gemfile"))))
+  (lambda ()
+    (f-touch (concat rake-test-app-path "/Gemfile"))))
 
-(When "^I run command \"\\(.+\\)\" \\(?:selecting\\|inputting\\) \"\\(.+\\)\"$"
-  (lambda (command argument)
+(When "^I run rake selecting \"\\(.+\\)\"$"
+  (lambda (arg)
     (When "I start an action chain")
-    (When "I press \"M-x\"")
-    (And (s-lex-format "I type \"${command}\""))
-    (When "I press \"RET\"")
-    (And (s-lex-format "I type \"${argument}\""))
+    (And "I press \"M-x\"")
+    (And (concat "I type \"rake\""))
+    (And "I press \"RET\"")
+    (And (concat "I type \"" arg "\""))
+    (And "I execute the action chain")))
+
+(When "^I run rake selecting \"\\(.+\\)\" and setting \"\\(.+\\)\" as an argument$"
+  (lambda (arg rake-arg)
+    (When "I start an action chain")
+    (And "I press \"C-u\"")
+    (And "I press \"M-x\"")
+    (And "I type \"rake\"")
+    (And "I press \"RET\"")
+    (And (concat "I type \"" arg "\""))
+    (And "I press \"RET\"")
+    (And (concat "I type \"" rake-arg "\""))
     (And "I execute the action chain")))
 
 (Given "^spring is running"

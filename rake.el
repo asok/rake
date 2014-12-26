@@ -109,31 +109,32 @@ The saved data can be restored with `rake--unserialize-cache'."
           (--map (if (string-match "rake \\([^ ]+\\)" it) (match-string 1 it))
                  (split-string output "[\n]"))))
 
-(defun rake--tasks ()
+(defun rake--fresh-tasks ()
   "Returns list of the rake tasks for the current project."
   (rake--parse-tasks (rake--tasks-output)))
+
+(defun rake--cached-tasks (arg root)
+  "Returns cached list of the tasks for project in ROOT.
+If ARG is 16 then regenerate the cache first.
+If ARG is not 16 and the tasks are not found for the project it will regenerate the cache."
+  (when (= arg 16)
+    (rake--regenerate-cache root))
+  (or (gethash root rake--cache) (rake--regenerate-cache root)))
 
 (defun rake--regenerate-cache (root)
   "Regenerates cache for the tasks for the project in ROOT dir and saves it
 to `rake-cache-file'. Returns a list of the tasks for the project."
-  (let ((tasks (rake--tasks)))
+  (let ((tasks (rake--fresh-tasks)))
     (puthash root tasks rake--cache)
     (rake--serialize-cache)
     tasks))
 
-(defun rake--cached-or-fresh-tasks (root)
-  "Return a list of all the rake tasks defined in the current project.
-First try to find them in the cache, if not found fallback to calling rake."
+(defun rake--cached-or-fresh-tasks (arg root)
+  "Returns a list of all the rake tasks defined in the current project.
+If `rake-enable-caching' is t look in the cache, if not fallback to calling rake."
   (if rake-enable-caching
-      (or (gethash root rake--cache) (rake--regenerate-cache root))
-    (rake--tasks)))
-
-(defun rake--clear-cache (root)
-  (remhash root rake--cache))
-
-(defun rake--handle-prefix-arg (arg root)
-  (cl-case (car arg)
-    (16 (rake--clear-cache root))))
+      (rake--cached-tasks arg root)
+    (rake--fresh-tasks)))
 
 (define-derived-mode rake-compilation-mode compilation-mode "Rake Compilation"
   "Compilation mode used by `rake' command.")
@@ -141,20 +142,21 @@ First try to find them in the cache, if not found fallback to calling rake."
 ;;;###autoload
 (defun rake (arg)
   (interactive "P")
-  (let ((root (rake--root)))
-    (rake--handle-prefix-arg arg root)
+  (let* ((root (rake--root))
+         (arg (or (car arg) 0))
+         (prefix (rake--choose-command-prefix
+                  :spring  "spring rake "
+                  :zeus    "zeus rake "
+                  :bundler "bundle exec rake "
+                  :vanilla "rake "))
+         (task (completing-read "Rake: "
+                                (rake--cached-or-fresh-tasks arg root)))
+         (command (if (= arg 4)
+                      (read-string "Rake: " (concat prefix task " "))
+                    (concat prefix task))))
     (rake--with-root
      root
-     (compile
-      (concat
-       (rake--choose-command-prefix
-        :spring "spring rake "
-        :zeus "zeus rake "
-        :bundler "bundle exec rake "
-        :vanilla "rake ")
-       (completing-read "Rake: "
-                        (rake--cached-or-fresh-tasks root)))
-      'rake-compilation-mode))))
+     (compile command 'rake-compilation-mode))))
 
 (provide 'rake)
 

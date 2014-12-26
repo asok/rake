@@ -11,6 +11,8 @@
 
 Do `M-x rake` to run a rake task.
 
+You can do `C-u M-x rake` in order to amend the command to run. Useful if you want to add arguments.
+
 You can do `C-u C-u M-x rake` in order to bypass the cache (when enabled).
 
 ### Customization
@@ -20,7 +22,6 @@ By default the caching is enabled. To disable it:
 ```el
 (setq rake-enable-caching nil)
 ```
-
 
 ## Contribution
 

@@ -12,11 +12,9 @@
 
 ## Usage
 
-Do `M-x rake` to run a rake task.
-
-You can do `C-u M-x rake` in order to amend the command to run. Useful if you want to add arguments.
-
-You can do `C-u C-u M-x rake` in order to bypass the cache (when enabled).
+* `M-x rake` to run a rake task.
+* `C-u M-x rake` to amend the command to run. Useful if you want to add arguments.
+* `C-u C-u M-x rake` to bypass the cache (when enabled).
 
 ### Setting up keybinding
 
@@ -41,7 +39,7 @@ By default the caching is enabled. To disable it:
 
 ### Completion
 
-By default `ido` is used for completion you customize it:
+By default `ido` is used for completion. You can customize it with:
 
 ```el
 (setq rake-completion-system 'helm)

@@ -22,7 +22,7 @@ Feature: Do Some things
     When I run rake selecting "foo"
     And I switch to buffer "*rake-compilation*"
     Then I should see "rake foo"
-    And the task "foo" is in the cache
+    And the task "foo  # " is in the cache
 
   Scenario: Run rake with an argument
     When I run rake selecting "foo" and setting "bar" as an argument

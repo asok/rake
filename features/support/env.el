@@ -37,9 +37,7 @@
        rake-enable-caching nil)
  (make-temp-file rake-test-app-path t)
  (rake-test-touch-file "Rakefile")
- (cd rake-test-app-path)
-
- )
+ (cd rake-test-app-path))
 
 (Before
  ;; Before each scenario is run

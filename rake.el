@@ -71,6 +71,9 @@
   :type 'symbol
   :options '(ido grizzl helm default))
 
+(defconst rake--edit-command 4)
+(defconst rake--omit-cache   16)
+
 (defun rake--spring-p (root)
   (file-exists-p (f-canonical
                   (concat
@@ -84,6 +87,18 @@
 
 (defun rake--bundler-p (root)
   (file-exists-p (expand-file-name "Gemfile" root)))
+
+(defun rake--vertical-ido-on-p ()
+  (and
+   (boundp 'ido-vertical-decorations)
+   (eq ido-decorations ido-vertical-decorations)))
+
+(defun rake--vertical-completion-system-p ()
+  (cl-case rake-completion-system
+    ('grizzl t)
+    ('helm t)
+    ('ido (rake--vertical-ido-on-p))
+    (t nil)))
 
 (defun rake--root ()
   (locate-dominating-file default-directory "Rakefile"))
@@ -117,7 +132,8 @@ The saved data can be restored with `rake--unserialize-cache'."
 (defun rake--parse-tasks (output)
   "Parses the OUTPUT of rake command with list of tasks. Returns a list of tasks."
   (--keep it
-          (--map (if (string-match "rake \\([^ ]+\\)" it) (match-string 1 it))
+          (--map (if (string-match "rake \\(.+\\)$" it)
+                     (match-string 1 it))
                  (split-string output "[\n]"))))
 
 (defun rake--fresh-tasks (root)
@@ -128,7 +144,7 @@ The saved data can be restored with `rake--unserialize-cache'."
   "Returns cached list of the tasks for project in ROOT.
 If ARG is 16 then regenerate the cache first.
 If ARG is not 16 and the tasks are not found for the project it will regenerate the cache."
-  (when (= arg 16)
+  (when (= arg rake--omit-cache)
     (rake--regenerate-cache root))
   (or (gethash root rake--cache) (rake--regenerate-cache root)))
 
@@ -146,6 +162,12 @@ If `rake-enable-caching' is t look in the cache, if not fallback to calling rake
   (if rake-enable-caching
       (rake--cached-tasks arg root)
     (rake--fresh-tasks root)))
+
+(defun rake--tasks-without-doscstrings (tasks)
+  (--map (rake--trim-docstring it) tasks))
+
+(defun rake--trim-docstring (task)
+  (replace-regexp-in-string "[ ]*#.*$" "" task))
 
 (defun rake--completing-read (prompt choices)
   (cl-case rake-completion-system
@@ -182,9 +204,13 @@ If `rake-enable-caching' is t look in the cache, if not fallback to calling rake
                                               :bundler "bundle exec rake "
                                               :vanilla "rake "))
          (prompt "Rake: ")
-         (task (rake--completing-read prompt
-                                      (rake--cached-or-fresh-tasks arg root)))
-         (command (if (= arg 4)
+         (tasks (rake--cached-or-fresh-tasks arg root))
+         (task (rake--trim-docstring
+                (rake--completing-read prompt
+                                       (if (rake--vertical-completion-system-p)
+                                           tasks
+                                         (rake--tasks-without-doscstrings tasks)))))
+         (command (if (= arg rake--edit-command)
                       (read-string prompt (concat prefix task " "))
                     (concat prefix task))))
     (rake--with-root

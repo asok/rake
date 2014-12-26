@@ -110,7 +110,7 @@ The saved data can be restored with `rake--unserialize-cache'."
                  (split-string output "[\n]"))))
 
 (defun rake--tasks ()
-  "Returns list of the rake tasks for the project in PROJECT-ROOT"
+  "Returns list of the rake tasks for the current project."
   (rake--parse-tasks (rake--tasks-output)))
 
 (defun rake--regenerate-cache (root)
@@ -122,14 +122,15 @@ to `rake-cache-file'. Returns a list of the tasks for the project."
     tasks))
 
 (defun rake--cached-or-fresh-tasks ()
-  "Return a list of all the rake tasks defined in the current project."
+  "Return a list of all the rake tasks defined in the current project.
+First try to find them in the cache, if not found fallback to calling rake."
   (let ((root (rake--root)))
     (if rake-enable-caching
         (or (gethash root rake--cache) (rake--regenerate-cache root))
       (rake--tasks))))
 
 (define-derived-mode rake-compilation-mode compilation-mode "Rake Compilation"
-  "Compilation mode used by `rake-compile'.")
+  "Compilation mode used by `rake' command.")
 
 ;;;###autoload
 (defun rake (task)

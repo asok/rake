@@ -41,7 +41,10 @@
 
 (Given "^spring is running"
   (lambda ()
-    (f-touch rake-test-spring-pid-file)))
+    (let ((dir (concat temporary-file-directory "spring/")))
+      (when (not (f-exists? dir))
+        (make-directory dir))
+      (f-touch rake-test-spring-pid-file))))
 
 (Given "^zeus is running"
   (lambda ()

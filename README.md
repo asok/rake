@@ -10,6 +10,10 @@
 
 ## Installation
 
+#### Melpa
+
+Once you have setup [Melpa](http://melpa.milkbox.net/#/getting-started) you can use `package-install` command to install Projectile Rails. The package name is `rake`.
+
 ## Usage
 
 * `M-x rake` to run a rake task.

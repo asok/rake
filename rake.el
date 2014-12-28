@@ -1,4 +1,4 @@
-;;; rake.el --- Package to run rake command
+;;; rake.el --- Run rake commands
 
 ;; Copyright (C) 2014 Adam Sokolnicki
 
@@ -6,7 +6,7 @@
 ;; URL:               https://github.com/asok/rake.el
 ;; Version:           0.1.0
 ;; Keywords:          rake, ruby
-;; Package-Requires:  ((f "0.13.0") (dash "1.5.0"))
+;; Package-Requires:  ((f "0.13.0") (dash "1.5.0") (cl-lib "0.5"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -37,6 +37,7 @@
 
 (require 'cl-lib)
 (require 'dash)
+(require 'f)
 
 (defmacro rake--with-root (root body-form)
   `(let* ((default-directory root))

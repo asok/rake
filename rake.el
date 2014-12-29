@@ -192,7 +192,7 @@ If `rake-enable-caching' is t look in the cache, if not fallback to calling rake
   (rake--regenerate-cache (rake--root)))
 
 ;;;###autoload
-(defun rake (arg)
+(defun rake (arg &optional compilation-mode)
   "Runs rake command."
   (interactive "P")
   (let* ((root (or (rake--root) (user-error "Rakefile not found")))
@@ -214,7 +214,7 @@ If `rake-enable-caching' is t look in the cache, if not fallback to calling rake
                     (concat prefix task))))
     (rake--with-root
      root
-     (compile command 'rake-compilation-mode))))
+     (compile command (or compilation-mode 'rake-compilation-mode)))))
 
 (provide 'rake)
 

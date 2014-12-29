@@ -100,7 +100,7 @@
     (t nil)))
 
 (defun rake--root ()
-  (locate-dominating-file default-directory "Rakefile"))
+  (file-truename (locate-dominating-file default-directory "Rakefile")))
 
 (defun rake--unserialize-cache ()
   "Read data serialized by `rake--serialize-cache' from `rake-cache-file'."

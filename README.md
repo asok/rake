@@ -16,9 +16,15 @@ Once you have setup [Melpa](http://melpa.milkbox.net/#/getting-started) you can 
 
 ## Usage
 
+### `rake` command
+
 * `M-x rake` to run a rake task.
 * `C-u M-x rake` to amend the command to run. Useful if you want to add arguments.
 * `C-u C-u M-x rake` to bypass the cache (when enabled).
+
+### `rake-find-task` command
+
+* `M-x rake-find-task` to find a rake task.
 
 ### Setting up keybinding
 

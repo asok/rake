@@ -48,7 +48,8 @@
  )
 
 (After
- (kill-buffer "*rake-compilation*")
+ (when (member "*rake-compilation*" (mapcar 'buffer-name (buffer-list)))
+   (kill-buffer "*rake-compilation*"))
  (remhash (rake--root) rake--cache)
  (when (f-file? rake-test-spring-pid-file)
    (f-delete rake-test-spring-pid-file))

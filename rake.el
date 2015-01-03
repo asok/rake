@@ -136,7 +136,7 @@ The saved data can be restored with `rake--unserialize-cache'."
                  (split-string output "[\n]"))))
 
 (defun rake--fresh-tasks (root)
-  "Returns list of the rake tasks for the current project."
+  "Returns list of the rake tasks for the project in ROOT."
   (rake--parse-tasks (rake--tasks-output root)))
 
 (defun rake--cached-tasks (arg root)
@@ -156,7 +156,7 @@ to `rake-cache-file'. Returns a list of the tasks for the project."
     tasks))
 
 (defun rake--cached-or-fresh-tasks (arg root)
-  "Returns a list of all the rake tasks defined in the current project.
+  "Returns a list of all the rake tasks defined for the project in ROOT.
 If `rake-enable-caching' is t look in the cache, if not fallback to calling rake."
   (if rake-enable-caching
       (rake--cached-tasks arg root)

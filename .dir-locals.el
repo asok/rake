@@ -1,1 +1,1 @@
-((feature-mode . ((feature-cucumber-command . "cask exec ecukes {feature}"))))
+((feature-mode . ((feature-cucumber-command . "cask exec ecukes -r spec {feature}"))))

@@ -28,6 +28,9 @@
 (defvar rake-test-zeus-pid-file
   (concat rake-test-app-path ".zeus.sock"))
 
+(defvar rake-test-gemfile
+  (concat rake-test-app-path "Gemfile"))
+
 (defun rake-test-touch-file (filepath)
   (let ((fullpath (expand-file-name filepath rake-test-app-path)))
     (f-touch fullpath)))
@@ -47,7 +50,12 @@
 (After
  (kill-buffer "*rake-compilation*")
  (remhash (rake--root) rake--cache)
- )
+ (when (f-file? rake-test-spring-pid-file)
+   (f-delete rake-test-spring-pid-file))
+ (when (f-file? rake-test-zeus-pid-file)
+   (f-delete rake-test-zeus-pid-file))
+ (when (f-file? rake-test-gemfile)
+   (f-delete rake-test-gemfile)))
 
 (Teardown
  (delete-directory rake-test-app-path t)

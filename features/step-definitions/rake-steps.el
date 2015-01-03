@@ -16,7 +16,7 @@
 
 (Given "^I have Gemfile$"
   (lambda ()
-    (f-touch (concat rake-test-app-path "/Gemfile"))))
+    (f-touch rake-test-gemfile)))
 
 (When "^I run rake selecting \"\\(.+\\)\"$"
   (lambda (arg)
@@ -37,6 +37,15 @@
     (And (concat "I type \"" arg "\""))
     (And "I press \"RET\"")
     (And (concat "I type \"" rake-arg "\""))
+    (And "I execute the action chain")))
+
+(When "^I run rake-find-task selecting \"\\(.+\\)\""
+  (lambda (task)
+    (When "I start an action chain")
+    (And "I press \"M-x\"")
+    (And (concat "I type \"rake-find-task\""))
+    (And "I press \"RET\"")
+    (And (concat "I type \"" task "\""))
     (And "I execute the action chain")))
 
 (Given "^spring is running"
@@ -64,6 +73,10 @@
 (Given "^I enable the cache$"
   (lambda ()
     (setq rake-enable-caching t)))
+
+(And "^the cursor should be on line \\([0-9]+\\)$"
+  (lambda (line-num)
+    (should (equal (+ 1 (count-lines 1 (point))) (string-to-number line-num)))))
 
 (And "I debug"
   (lambda ()

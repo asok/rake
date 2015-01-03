@@ -6,6 +6,7 @@ Feature: Do Some things
   Background:
     Given I have Rakefile with content:
     """
+    # a comment
     task :foo do
       puts 'foo'
     end
@@ -46,3 +47,8 @@ Feature: Do Some things
     When I run rake selecting "foo"
     And I switch to buffer "*rake-compilation*"
     Then I should see "spring rake foo"
+
+  Scenario: Finding rake task
+    When I run rake-find-task selecting "foo"
+    Then I should be in file "Rakefile"
+    And the cursor should be on line 2

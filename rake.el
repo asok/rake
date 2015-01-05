@@ -40,7 +40,7 @@
 (require 'f)
 
 (defmacro rake--with-root (root body-form)
-  `(let* ((default-directory root))
+  `(let* ((default-directory ,root))
      ,body-form))
 
 (defun rake--choose-command-prefix (root cases)

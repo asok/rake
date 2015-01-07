@@ -74,12 +74,13 @@
 (defconst rake--omit-cache   16)
 
 (defun rake--spring-p (root)
-  (file-exists-p (f-canonical
-                  (concat
-                   temporary-file-directory
-                   "spring/"
-                   (md5 root 0 -1)
-                   ".pid"))))
+  (let ((path (concat temporary-file-directory "spring/%s"))
+        (ruby-version (shell-command-to-string "ruby -e 'print RUBY_VERSION'")))
+    (or
+     (file-exists-p (f-canonical
+                     (format path (concat (md5 root 0 -1) ".pid"))))
+     (file-exists-p (f-canonical
+                     (format path (md5 (concat ruby-version root) 0 -1)))))))
 
 (defun rake--zeus-p (root)
   (file-exists-p (expand-file-name ".zeus.sock" root)))

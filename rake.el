@@ -125,7 +125,7 @@ The saved data can be restored with `rake--unserialize-cache'."
   (shell-command-to-string
    (rake--choose-command-prefix root
                                 (list :zeus "zeus rake -T -A"
-                                      :spring "spring rake -T -A"
+                                      :spring "bundle exec spring rake -T -A"
                                       :bundler "bundle exec rake -T -A"
                                       :vanilla "rake -T -A"))))
 
@@ -207,7 +207,7 @@ If `rake-enable-caching' is t look in the cache, if not fallback to calling rake
   (let* ((root (or (rake--root) (user-error "Rakefile not found")))
          (arg (or (car arg) 0))
          (prefix (rake--choose-command-prefix root
-                                              (list :spring  "spring rake --where "
+                                              (list :spring  "bundle exec spring rake --where "
                                                     :zeus    "zeus rake --where "
                                                     :bundler "bundle exec rake --where "
                                                     :vanilla "rake --where ")))
@@ -227,7 +227,7 @@ If `rake-enable-caching' is t look in the cache, if not fallback to calling rake
   (let* ((root (or (rake--root) (user-error "Rakefile not found")))
          (arg (or (car arg) 0))
          (prefix (rake--choose-command-prefix root
-                                              (list :spring  "spring rake "
+                                              (list :spring  "bundle exec spring rake "
                                                     :zeus    "zeus rake "
                                                     :bundler "bundle exec rake "
                                                     :vanilla "rake ")))

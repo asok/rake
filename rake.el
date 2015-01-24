@@ -4,7 +4,7 @@
 
 ;; Author:            Adam Sokolnicki <adam.sokolnicki@gmail.com>
 ;; URL:               https://github.com/asok/rake.el
-;; Version:           0.3.2
+;; Version:           0.3.3
 ;; Keywords:          rake, ruby
 ;; Package-Requires:  ((f "0.13.0") (dash "1.5.0") (cl-lib "0.5"))
 

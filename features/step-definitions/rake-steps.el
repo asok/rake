@@ -61,12 +61,12 @@
 
 (And "^the task \"\\(.+\\)\" is in the cache$"
   (lambda (name)
-    (let ((tasks (gethash rake-test-app-path (rake--unserialize-cache))))
+    (let ((tasks (gethash rake-test-app-path (rake--deserialize-cache))))
       (should (equal (list name) tasks)))))
 
 (And "^the task \"\\(.+\\)\" is not in the cache$"
   (lambda (name)
-    (let* ((content (rake--unserialize-cache))
+    (let* ((content (rake--deserialize-cache))
            (tasks (and content (gethash rake-test-app-path content))))
       (should (not (equal (list name) tasks))))))
 

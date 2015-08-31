@@ -103,7 +103,7 @@
 (defun rake--root ()
   (file-truename (locate-dominating-file default-directory "Rakefile")))
 
-(defun rake--unserialize-cache ()
+(defun rake--deserialize-cache ()
   "Read data serialized by `rake--serialize-cache' from `rake-cache-file'."
   (when (file-exists-p rake-cache-file)
     (with-temp-buffer
@@ -111,7 +111,7 @@
       (read (buffer-string)))))
 
 (defvar rake--cache
-  (or (rake--unserialize-cache)
+  (or (rake--deserialize-cache)
       (make-hash-table :test 'equal)))
 
 (defvar rake--last-root nil)
@@ -120,7 +120,7 @@
 
 (defun rake--serialize-cache ()
   "Serialize `rake--cache' to `rake-cache-file'.
-The saved data can be restored with `rake--unserialize-cache'."
+The saved data can be restored with `rake--deserialize-cache'."
   (when (file-writable-p rake-cache-file)
     (with-temp-file rake-cache-file
       (insert (let (print-length) (prin1-to-string rake--cache))))))

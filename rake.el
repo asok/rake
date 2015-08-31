@@ -114,6 +114,10 @@
   (or (rake--unserialize-cache)
       (make-hash-table :test 'equal)))
 
+(defvar rake--last-root nil)
+(defvar rake--last-task nil)
+(defvar rake--last-mode nil)
+
 (defun rake--serialize-cache ()
   "Serialize `rake--cache' to `rake-cache-file'.
 The saved data can be restored with `rake--unserialize-cache'."
@@ -191,6 +195,20 @@ If `rake-enable-caching' is t look in the cache, if not fallback to calling rake
                                 tasks
                               (rake--tasks-without-doscstrings tasks))))))
 
+(defun rake-compile (root task mode)
+  (setq rake--last-root root
+        rake--last-task task
+        rake--last-mode mode)
+  (rake--with-root root (compile task mode)))
+
+;;;###autoload
+(defun rake-rerun ()
+  "Re-runs the last task"
+  (interactive)
+  (when (not rake--last-root)
+    (error "No task was run"))
+  (rake-compile rake--last-root rake--last-task rake--last-mode))
+
 (define-derived-mode rake-compilation-mode compilation-mode "Rake Compilation"
   "Compilation mode used by `rake' command.")
 
@@ -231,13 +249,12 @@ If `rake-enable-caching' is t look in the cache, if not fallback to calling rake
                                                     :zeus    "zeus rake "
                                                     :bundler "bundle exec rake "
                                                     :vanilla "rake ")))
-         (task (rake--read-task root arg)))
-    (rake--with-root root
-                     (compile
-                      (if (= arg rake--edit-command)
-                          (read-string "Rake command: " (concat prefix task " "))
-                        (concat prefix task))
-                      (or compilation-mode 'rake-compilation-mode)))))
+         (task (rake--read-task root arg))
+         (task (if (= arg rake--edit-command)
+                   (read-string "Rake command: " (concat prefix task " "))
+                 (concat prefix task)))
+         (mode (or compilation-mode 'rake-compilation-mode)))
+    (rake-compile root task mode)))
 
 (provide 'rake)
 

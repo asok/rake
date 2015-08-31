@@ -26,6 +26,10 @@ Once you have setup [Melpa](http://melpa.milkbox.net/#/getting-started) you can 
 
 * `M-x rake-find-task` to find a rake task.
 
+### `rake-rerun` command
+
+* `M-x rake-rerun` to run the last task.
+
 ### Setting up keybinding
 
 By default `rake` command is not bound to any key.

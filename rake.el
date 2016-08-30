@@ -35,7 +35,9 @@
 ;;
 ;;; Code:
 
+(require 'ansi-color)
 (require 'cl-lib)
+(require 'compile)
 (require 'dash)
 (require 'f)
 
@@ -202,6 +204,10 @@ If `rake-enable-caching' is t look in the cache, if not fallback to calling rake
                                 tasks
                               (rake--tasks-without-doscstrings tasks))))))
 
+(defun rake--apply-ansi-color ()
+  (let ((inhibit-read-only t))
+    (ansi-color-apply-on-region compilation-filter-start (point))))
+
 (defun rake-compile (root task mode)
   (setq rake--last-root root
         rake--last-task task
@@ -217,7 +223,8 @@ If `rake-enable-caching' is t look in the cache, if not fallback to calling rake
   (rake-compile rake--last-root rake--last-task rake--last-mode))
 
 (define-derived-mode rake-compilation-mode compilation-mode "Rake Compilation"
-  "Compilation mode used by `rake' command.")
+  "Compilation mode used by `rake' command."
+  (add-hook 'compilation-filter-hook 'rake--apply-ansi-color nil t))
 
 ;;;###autoload
 (defun rake-regenerate-cache ()

@@ -95,7 +95,10 @@
   (file-exists-p (expand-file-name ".zeus.sock" root)))
 
 (defun rake--bundler-p (root)
-  (file-exists-p (expand-file-name "Gemfile" root)))
+  (cond
+   ((file-exists-p (expand-file-name "Gemfile" root)) t)
+   ((equal (expand-file-name root) "/") nil)
+   (t (rake--bundler-p (concat (file-name-as-directory root) "..")))))
 
 (defun rake--vertical-ido-on-p ()
   (and

@@ -95,7 +95,7 @@
   (file-exists-p (expand-file-name ".zeus.sock" root)))
 
 (defun rake--bundler-p (root)
-  (file-exists-p (expand-file-name "Gemfile" root)))
+  (locate-dominating-file root "Gemfile"))
 
 (defun rake--vertical-ido-on-p ()
   (and

@@ -216,6 +216,9 @@ If `rake-enable-caching' is t look in the cache, if not fallback to calling rake
 
 ;;;###autoload
 (defun rake-compile (task-name &optional mode)
+  "Runs TASK-NAME from the directory returned by `rake--root'.
+The optional MODE can be passed to specify
+which mode the compilation buffer should run in."
   (let* ((root (rake--root))
          (prefix (rake--choose-command-prefix root
                                               (list :spring  "bundle exec spring rake "

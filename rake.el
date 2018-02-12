@@ -134,13 +134,15 @@ The saved data can be restored with `rake--deserialize-cache'."
     (with-temp-file rake-cache-file
       (insert (let (print-length) (prin1-to-string rake--cache))))))
 
+
 (defun rake--tasks-output (root)
-  (shell-command-to-string
-   (rake--choose-command-prefix root
-                                (list :zeus "zeus rake -T -A"
-                                      :spring "bundle exec spring rake -T -A"
-                                      :bundler "bundle exec rake -T -A"
-                                      :vanilla "rake -T -A"))))
+  (let ((default-directory root))
+    (shell-command-to-string
+     (rake--choose-command-prefix root
+                                  (list :zeus "zeus rake -T -A"
+                                        :spring "bundle exec spring rake -T -A"
+                                        :bundler "bundle exec rake -T -A"
+                                        :vanilla "rake -T -A")))))
 
 (defun rake--parse-tasks (output)
   "Parses the OUTPUT of rake command with list of tasks. Returns a list of tasks."

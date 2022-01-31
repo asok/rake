@@ -169,7 +169,7 @@ to `rake-cache-file'. Returns a list of the tasks for the project."
   (let ((tasks (rake--fresh-tasks root)))
     (puthash root tasks rake--cache)
     (rake--serialize-cache)
-    tasks))
+    (gethash root rake--cache)))
 
 (defun rake--cached-or-fresh-tasks (arg root)
   "Returns a list of all the rake tasks defined for the project in ROOT.
